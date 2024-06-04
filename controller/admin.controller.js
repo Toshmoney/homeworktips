@@ -75,8 +75,20 @@ const removeSuspension = async(req, res)=>{
     }
 }
 
+const allUsers = async(req, res){
+  try{
+    const users = await User.find();
+    const totalUsers = await User.countDocuments();
+    return res.status(200).json({ users, totalUsers });
+  }catch (error) {
+    console.error("Error listing users:", error.message);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
 module.exports ={
     banUser,
     removeSuspension,
-    suspendUser
+    suspendUser,
+    allUsers
 }
