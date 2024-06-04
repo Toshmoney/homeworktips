@@ -38,6 +38,10 @@ const postSchema = new Schema({
     },
     category:{
         type: String,
+    },
+    views:{
+        type:Number,
+        default:0
     }
 },
 {

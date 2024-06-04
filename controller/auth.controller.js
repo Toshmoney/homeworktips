@@ -25,12 +25,10 @@ try {
       return res.status(400).json({ error: "User with this email already exists" });
     }
 
-    // const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
       username,
       email,
-    //   password: hashedPassword,
       password,
     });
 

@@ -48,7 +48,7 @@ const userSchema = new Schema(
     accountStatus: {
       type: String,
       required: true,
-      enum: ["active", "suspended", "ban"],
+      enum: ["active", "suspended", "banned"],
       default: "active"
     },
     availability: {
@@ -59,7 +59,12 @@ const userSchema = new Schema(
     walletAddress:{
         type:String
     },
-
+    subscription:{
+      type:String,
+      required:true,
+      enum:["premium", "basic"],
+      default:"basic"
+    },
     resetToken: String,
     resetExpires: Date,
   },
