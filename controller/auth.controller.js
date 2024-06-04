@@ -1,8 +1,18 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 const User = require('../models/user.model.js');
 const Wallet = require('../models/wallet.models.js');
+
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.ADMIN_EMAIL,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
 
 const register = async(req, res)=>{
 try {
@@ -41,6 +51,8 @@ try {
 
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
+    await sendVerificationEmail(newUser.email, token);
+
     return res.status(201).json({ message: "User created successfully", token });
   } catch (error) {
     console.error("Error creating user:", error.message);
@@ -48,6 +60,19 @@ try {
   }
 }
 
+
+const sendVerificationEmail = async (email, token) => {
+  const verificationLink = `${BASE_URL}/verify?token=${token}`;
+
+  const mailOptions = {
+    from: process.env.ADMIN_EMAIL,
+    to: email,
+    subject: 'Email Verification From Home Work Tips',
+    html: `<p>Click <a href="${verificationLink}">here</a> to verify your email address.</p>`,
+  };
+
+  await transporter.sendMail(mailOptions);
+};
 
 const login = async(req, res) => {
   try {
@@ -77,7 +102,23 @@ const login = async(req, res) => {
   }
 }
 
+const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decodedToken.userId;
+
+    await User.findByIdAndUpdate(userId, { isVerified: true });
+
+    return res.json({message:"Account verification successfully!"})
+  } catch (error) {
+    console.error("Error verifying email:", error.message);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 module.exports = {
     register,
-    login
+    login,
+    verifyEmail
 }
