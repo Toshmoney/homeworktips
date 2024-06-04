@@ -86,6 +86,26 @@ const allUsers = async(req, res){
   }
 }
 
+const makeUserAModerator = async (req, res) => {
+  try {
+    let { email } = req.body;
+    email = email.toLowerCase(); 
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    user.userType = "moderator";
+    await user.save();
+
+    return res.status(200).json({ message: "User is now a moderator" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "An error occurred" });
+  }
+};
+
 module.exports ={
     banUser,
     removeSuspension,
