@@ -2,6 +2,7 @@ const slugify = require('slugify');
 const Posts = require("../models/post.model");
 const formatDate = require("../utils/formatDate");
 const User = require('../models/user.model');
+const Wallet = require('../models/wallet.models');
 
 
 const createPost = async (req, res) => {
@@ -79,13 +80,39 @@ const getSinglePost = async (req, res) => {
     if (user) {
       contentAuthor = user.username;
     }
-  
+
+    const isAuthor = req.user && req.user._id.toString() === author.toString();
+
+    if (!isAuthor) {
+      foundPost.views += 1;
+      await foundPost.save();
+    }
+
+    let reward = null;
+
+    if (isAuthor) {
+      reward = Math.floor(foundPost.views / 1000) * 0.1;
+
+      if (reward > 0) {
+        const wallet = await Wallet.findOne({ user: author });
+        if (wallet) {
+          wallet.balance += reward;
+          await wallet.save();
+        } else {
+          const newWallet = new Wallet({ user: author, balance: reward });
+          await newWallet.save();
+        }
+      }
+    }
+
     foundPost = {
       title: foundPost.title,
       summary: foundPost.summary,
       content: foundPost.content,
       cover_img: customImgUrl,
       author: contentAuthor,
+      views: foundPost.views, 
+      reward: reward,
       createdAt: formatDate(foundPost.createdAt),
       updatedAt: formatDate(foundPost.updatedAt),
     };
@@ -96,6 +123,7 @@ const getSinglePost = async (req, res) => {
     return res.status(500).json({ error: "An error occurred while retrieving the post." });
   }
 };
+
 
   
   // ============== Get All Posts ================
