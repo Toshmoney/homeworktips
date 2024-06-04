@@ -1,5 +1,5 @@
 const User = require("../models/user.model");
-
+const Posts = require("../models/post.model")
 const banUser = async(req, res)=>{
     try {
         const {userId} = req.params; 
@@ -106,9 +106,59 @@ const makeUserAModerator = async (req, res) => {
   }
 };
 
+const revertUserToNormal = async(req, res)=>{
+  const {userId} = req.params
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    user.userType = "writer";
+    await user.save();
+
+    return res.status(200).json({ message: "User is now a normal writer" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "An error occurred" });
+  }
+}
+
+const adminDeleteSinglePost = async(req, res)=>{
+  const postId = req.params.postId;
+  try {
+    const deletedPost = await Posts.findByIdAndDelete(postId);
+    if (!deletedPost) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+    return res.status(200).json({ message: "Post deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "An error occurred" });
+  }
+}
+
+const adminDeleteAllPosts = async(req, res)=>{
+  try {
+    const deletedPosts = await Posts.deleteMany({});
+    if(!deletedPosts){
+      return res.status(404).json({ error: "Posts not found" });
+    }
+    return res.status(200).json({ message: "All posts deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "An error occurred" });
+  }
+}
+
 module.exports ={
     banUser,
     removeSuspension,
     suspendUser,
-    allUsers
+    allUsers,
+    makeUserAModerator,
+    revertUserToNormal,
+    adminDeleteSinglePost,
+    adminDeleteAllPosts
 }

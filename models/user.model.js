@@ -34,8 +34,8 @@ const userSchema = new Schema(
     userType: {
       type: String,
       required: true,
-      enum: ["writer", "reader", "admin", "moderator"],
-      default:"reader"
+      enum: ["writer", "admin", "moderator"],
+      default:"writer"
     },
     profileDescription: {
       type: String
