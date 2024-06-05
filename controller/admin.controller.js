@@ -1,5 +1,7 @@
 const User = require("../models/user.model");
 const Posts = require("../models/post.model")
+const withdrawal = require("../models/withdrawal.model");
+const Wallet = require("../models/wallet.models")
 const banUser = async(req, res)=>{
     try {
         const {userId} = req.params; 
@@ -151,6 +153,41 @@ const adminDeleteAllPosts = async(req, res)=>{
     return res.status(500).json({ error: "An error occurred" });
   }
 }
+
+const approveWithdrawal = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+
+    const withdrawalRequest = await WithdrawalRequest.findById(requestId).populate("user", ['username']);
+
+    if (!withdrawalRequest) {
+      return res.status(404).json({ error: "Withdrawal request not found" });
+    }
+
+    const amountWithdrawn = withdrawalRequest.amount;
+    const user = withdrawalRequest.user;
+
+    const userWallet = await Wallet.findOne({ user: user._id });
+
+    if (!userWallet) {
+      return res.status(404).json({ error: "User wallet not found" });
+    }
+
+    if (userWallet.balance < amountWithdrawn) {
+      return res.status(400).json({ error: "Insufficient balance" });
+    }
+
+    userWallet.balance -= amountWithdrawn;
+    await userWallet.save();
+
+    const approvedWithdrawalRequest = await WithdrawalRequest.findByIdAndUpdate(requestId, { status: "approved" }, { new: true });
+
+    return res.status(200).json({ message: "Withdrawal request approved successfully", withdrawal: approvedWithdrawalRequest });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "An error occurred" });
+  }
+};
 
 module.exports ={
     banUser,
