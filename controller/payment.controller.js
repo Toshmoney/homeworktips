@@ -1,4 +1,5 @@
-const withdrawal = require("../models/withdrawal.model")
+const withdrawal = require("../models/withdrawal.model");
+const Transaction = require("../models/transaction.model")
 
 const withdrawalRequest = async (req, res) => {
   try {
@@ -31,7 +32,21 @@ const withdrawalRequest = async (req, res) => {
   }
 };
 
+const allTransactions = async(req, res)=>{
+  try {
+    const userId = req.user._id;
+
+    const transactions = await Transaction.find({ user: userId }).sort({ createdAt: -1 }).limit(20);
+
+    return res.status(200).json(transactions);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "An error occurred while retrieving transactions" });
+  }
+}
+
 
 module.exports = {
-  withdrawalRequest
+  withdrawalRequest,
+  allTransactions
 }
