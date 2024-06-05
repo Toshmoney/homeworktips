@@ -2,6 +2,7 @@ const User = require("../models/user.model");
 const Posts = require("../models/post.model")
 const withdrawal = require("../models/withdrawal.model");
 const Wallet = require("../models/wallet.models")
+const Transaction = require("../models/transaction.model")
 const banUser = async(req, res)=>{
     try {
         const {userId} = req.params; 
@@ -181,6 +182,14 @@ const approveWithdrawal = async (req, res) => {
     await userWallet.save();
 
     const approvedWithdrawalRequest = await WithdrawalRequest.findByIdAndUpdate(requestId, { status: "approved" }, { new: true });
+
+    const transaction = new Transaction({
+      user: user._id,
+      amount: amountWithdrawn,
+      type: "withdrawal",
+      status: "completed"
+    });
+    await transaction.save();
 
     return res.status(200).json({ message: "Withdrawal request approved successfully", withdrawal: approvedWithdrawalRequest });
   } catch (error) {
