@@ -38,5 +38,5 @@ router.route("/profile").get([isLoggin], getUserProfile)
 router.route("/user/my-posts").get([isLoggin], getUserPosts)
 router.route("/user/earnings").get([isLoggin], getEarnings)
 router.route("/update-profile").put([isLoggin], updateUserProfile)
-router.route("/update-profile").put( verifyEmail)
+router.route("/verify").get( verifyEmail)
 module.exports = router;
