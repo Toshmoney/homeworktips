@@ -10,7 +10,7 @@ const {
 } = require("../controller/post.controller");
 
 const { isLoggin, isVerified, checkUserPin, verifyUserPin, isWriter } = require("../midlewares/auth");
-const { getUserProfile, getWriterProfile, updateUserProfile, getUserPosts } = require("../controller/user.controller");
+const { getUserProfile, getWriterProfile, updateUserProfile, getUserPosts, getEarnings } = require("../controller/user.controller");
 const { getComments, addComment } = require("../controller/comment.controller");
 
 const router = express.Router();
@@ -36,5 +36,6 @@ router.route("/post/:slug").delete([isLoggin, isVerified, isWriter], deletePost)
 router.route("/writer/:userId").get(getWriterProfile)
 router.route("/profile").get([isLoggin], getUserProfile)
 router.route("/user/my-posts").get([isLoggin], getUserPosts)
+router.route("/user/earnings").get([isLoggin], getEarnings)
 router.route("/update-profile").put([isLoggin], updateUserProfile)
 module.exports = router;

@@ -123,10 +123,31 @@ const getUserPosts = async (req, res) => {
 };
 
 
+const getEarnings = async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    const posts = await Post.find({ author: userId });
+
+    // Calculate total earnings
+    const totalEarnings = posts.reduce((acc, post) => {
+      const earningsFromPost = Math.floor(post.views / 1000) * 0.1;
+      return acc + earningsFromPost;
+    }, 0);
+
+    res.status(200).json({ totalEarnings, posts });
+  } catch (error) {
+    console.error('Error fetching earnings:', error);
+    res.status(500).json({ error: 'Failed to fetch earnings' });
+  }
+};
+
+
 
 module.exports = {
     updateUserProfile,
     getUserProfile,
     getWriterProfile,
-    getUserPosts
+    getUserPosts,
+    getEarnings
 }

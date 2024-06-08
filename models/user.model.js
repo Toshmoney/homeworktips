@@ -40,10 +40,6 @@ const userSchema = new Schema(
     profileDescription: {
       type: String
     },
-    skillsets: [{
-        skillTitle: { type: String, required: true },
-        skills: [{ type: String }]
-      }],
     
     accountStatus: {
       type: String,
