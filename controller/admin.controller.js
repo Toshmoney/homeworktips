@@ -2,7 +2,8 @@ const User = require("../models/user.model");
 const Posts = require("../models/post.model")
 const withdrawal = require("../models/withdrawal.model");
 const Wallet = require("../models/wallet.models")
-const Transaction = require("../models/transaction.model")
+const Transaction = require("../models/transaction.model");
+const formatDate = require("../utils/formatDate");
 const banUser = async(req, res)=>{
     try {
         const {userId} = req.params; 
@@ -80,9 +81,21 @@ const removeSuspension = async(req, res)=>{
 
 const allUsers = async(req, res){
   try{
-    const users = await User.find();
+
+    let wallets = await Wallet.find().populate("user");
+    wallets = wallets.map((item) => {
+      const wallet = item.toObject();
+      return {
+        user_id: wallet.user?._id,
+        name: wallet.user?.username,
+        email: wallet.user?.email,
+        createdAt: formatDate(wallet.user?.createdAt),
+        balance: wallet?.balance,
+      };
+    });
+    
     const totalUsers = await User.countDocuments();
-    return res.status(200).json({ users, totalUsers });
+    return res.status(200).json({ users:wallets, totalUsers });
   }catch (error) {
     console.error("Error listing users:", error.message);
     return res.status(500).json({ message: "Internal Server Error" });

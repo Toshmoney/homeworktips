@@ -46,7 +46,8 @@ const postSchema = new Schema({
     reward:{
         type:Number,
         default:0
-    }
+    },
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
 },
 {
     timestamps:true

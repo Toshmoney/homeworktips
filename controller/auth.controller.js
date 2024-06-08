@@ -1,4 +1,6 @@
 const express = require('express');
+const env = require("dotenv")
+env.config()
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
@@ -16,6 +18,9 @@ const transporter = nodemailer.createTransport({
 
 const register = async(req, res)=>{
 try {
+  if (req.body.email) {
+    req.body.email = req.body.email.toLowerCase();
+  }
     const { username, email, password } = req.body;
 
     if (!username || username.length < 3) {
@@ -62,7 +67,7 @@ try {
 
 
 const sendVerificationEmail = async (email, token) => {
-  const verificationLink = `${BASE_URL}/verify?token=${token}`;
+  const verificationLink = `http://localhost:3000/verify?token=${token}`;
 
   const mailOptions = {
     from: process.env.ADMIN_EMAIL,
@@ -75,6 +80,9 @@ const sendVerificationEmail = async (email, token) => {
 };
 
 const login = async(req, res) => {
+  if (req.body.email) {
+    req.body.email = req.body.email.toLowerCase();
+  }
   try {
     const { email, password } = req.body;
 
@@ -95,7 +103,7 @@ const login = async(req, res) => {
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    res.status(200).json({ message: "Login successful", token });
+    res.status(200).json({ message: "Login successful", token, user });
   } catch (error) {
     console.error("Error logging in:", error);
     res.status(500).json({ message: "Internal Server Error" });

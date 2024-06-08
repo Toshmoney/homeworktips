@@ -3,25 +3,31 @@ const User = require('../models/user.model');
 const TransactionPin = require("../models/transactionpin.model")
 
 const isLoggin = async (req, res, next) => {
-  const token = req.headers.authorization;
+	let token;
 
-  if (token) {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.userId);
+	if (
+		req.headers.authorization &&
+		req.headers.authorization.startsWith('Bearer')
+	) {
+		try {
+			token = req.headers.authorization.split(' ')[1];
 
-      if (!user) {
-        return res.status(401).json({ error: "User not found" });
-      }
-
-      req.user = user; 
-      next();
-    } catch (error) {
-      return res.status(403).json({ error: "Invalid token" });
-    }
-  } else {
-    res.status(401).json({ message: "Unauthorized" });
-  }
+			const decoded = jwt.verify(token, process.env.JWT_SECRET);
+			req.user = await User.findById(decoded.userId).select('-password');
+			if (!req.user) throw new Error('Not authorized');
+		} catch (error) {
+			console.log(error);
+			return res
+				.status(401)
+				.json({status: false, message: 'Not authorized, no token'});
+		}
+	}
+	if (!token) {
+		return res
+			.status(401)
+			.json({status: false, message: 'Not authorized, no token'});
+	}
+	next();
 };
 
 const isAdmin = (req, res, next) => {

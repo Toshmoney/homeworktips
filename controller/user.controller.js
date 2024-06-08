@@ -1,47 +1,91 @@
 const User = require("../models/user.model");
+const Wallet = require("../models/wallet.models");
+const formatDate = require("../utils/formatDate");
+const path = require('path');
+const fs = require('fs');
+const Post = require("../models/post.model");
+const Comment = require("../models/comment.model");
 
 const getUserProfile = async(req, res)=>{
-    const {userId} = req.param;
-    const user = await User.findById(userId);
-    if(!user){
-        return res.status(404).json({error:"User Doesn't exist or has been banned!"})
+  console.log(req.user);
+  try {
+    let user = await Wallet.findOne({user: req.user}).populate("user")
+    
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
 
-    return res.status(200).json({user})
+    console.log("User wallet: " + user);
+    // console.log("User wallet: " + user.user);
+
+    // user = {
+    //   balance,
+    //   username:user.username,
+    //   email:user.email,
+    //   availability:user.availability,
+    //   skillsets:user.skillsets,
+    //   joined: formatDate(user.createdAt),
+    //   profileUpdated:formatDate(user.updatedAt)
+    // }
+    
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ error: "An error occurred while retrieving the profile." });
+  }
 }
+
+const getWriterProfile = async(req, res)=>{
+  const {userId} = req.params
+  try {
+    let user = await User.findById(userId).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    user = {
+      username: user.username,
+      email: user.email,
+      availability:user.availability,
+      skillsets:user.skillsets,
+      joined: formatDate(user.createdAt),
+      profileUpdated:formatDate(user.updatedAt)
+    }
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ error: "An error occurred while retrieving the profile." });
+  }
+}
+
+
 
 const updateUserProfile = async (req, res) => {
   const user = req.user._id;
 
-  let imageUploadFile;
-  let uploadPath;
-  let newImageName;
-
-  if (!req.files || Object.keys(req.files).length === 0) {
+  // Check if files are provided
+  if (!req.files || !req.files.image) {
     return res.status(400).json({ error: "Profile picture is missing!" });
-  } else {
-    imageUploadFile = req.files.profilePicture;
-    newImageName = Date.now() + "-" + imageUploadFile.name;
+  }
 
-    const path = require('path');
-    const fs = require('fs');
-    const uploadsDir = path.resolve('./uploads/');
+  const imageUploadFile = req.files.image;
+  const newImageName = Date.now() + imageUploadFile.name;
+  const uploadPath = require('path').resolve('./') + '/uploads/' + newImageName;
 
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-
-    uploadPath = path.join(uploadsDir, newImageName);
-
-    try {
-      await imageUploadFile.mv(uploadPath);
-    } catch (err) {
-      return res.status(500).json({ error: "Failed to upload image: " + err.message });
-    }
+  // Ensure uploads directory exists
+  if (!fs.existsSync(path.join(__dirname, '../uploads'))) {
+    fs.mkdirSync(path.join(__dirname, '../uploads'));
   }
 
   try {
-    const updatedUser = await User.findByIdAndUpdate(user, { ...req.body, profilePicture: newImageName }, { runValidators: true, new: true });
+    // Move the uploaded file to the uploads directory
+    await imageUploadFile.mv(uploadPath);
+    // Update user profile
+    const updatedUser = await User.findByIdAndUpdate(
+      user,
+      { ...req.body, profilePicture: newImageName },
+      { runValidators: true, new: true }
+    );
 
     if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
@@ -49,7 +93,32 @@ const updateUserProfile = async (req, res) => {
 
     return res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
   } catch (err) {
-    return res.status(500).json({ error: "Failed to update profile: " + err.message });
+    return res.status(500).json({ error: "Failed to upload image: " + err.message });
+  }
+};
+
+const getUserPosts = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const posts = await Post.find({ author: userId });
+
+    const postsWithDetails = await Promise.all(
+      posts.map(async (post) => {
+        const commentCount = await Comment.countDocuments({ postId: post._id });
+        const reward = Math.floor(post.views / 1000) * 0.1;
+
+        return {
+          ...post._doc,
+          commentCount,
+          reward,
+        };
+      })
+    );
+
+    res.status(200).json(postsWithDetails);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch user's posts: " + err.message });
   }
 };
 
@@ -58,4 +127,6 @@ const updateUserProfile = async (req, res) => {
 module.exports = {
     updateUserProfile,
     getUserProfile,
+    getWriterProfile,
+    getUserPosts
 }

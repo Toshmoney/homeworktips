@@ -8,39 +8,20 @@ const Wallet = require('../models/wallet.models');
 const createPost = async (req, res) => {
   const user = req.user;
 
-  let imageUploadFile;
-  let uploadPath;
-  let newImageName;
-
-  if (!req.files || Object.keys(req.files).length === 0) {
+  if (!req.files || !req.files.image) {
     return res.status(400).json({ error: "Post image is missing!" });
-  } else {
-    imageUploadFile = req.files.image;
-    newImageName = Date.now() + "-" + imageUploadFile.name;
-
-    // Ensure the uploads directory exists
-    const path = require('path');
-    const fs = require('fs');
-    const uploadsDir = path.resolve('./uploads/');
-
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-
-    uploadPath = path.join(uploadsDir, newImageName);
-
-    try {
-      await imageUploadFile.mv(uploadPath);
-    } catch (err) {
-      return res.status(500).json({ error: "Failed to upload image: " + err.message });
-    }
   }
 
-  const { title, summary, content } = req.body;
-  const slugify = require('slugify');
-  const slug = slugify(title, { lower: true, replacement: '-' });
+  const imageUploadFile = req.files.image;
+  const newImageName = Date.now() + imageUploadFile.name;
+  const uploadPath = require('path').resolve('./') + '/uploads/' + newImageName;
 
   try {
+    await imageUploadFile.mv(uploadPath);
+    const { title, summary, content } = req.body;
+    const slugify = require('slugify');
+    const slug = slugify(title, { lower: true, replacement: '-' });
+
     const createdPost = await Posts.create({
       title,
       content,
@@ -54,11 +35,13 @@ const createPost = async (req, res) => {
       throw new Error("There was an error creating the new blog post");
     }
 
+    console.log(createPost);
     return res.status(201).json(createdPost);
   } catch (error) {
     return res.status(500).json({ error: "Failed to create post: " + error.message });
   }
 };
+
 
   
 const getSinglePost = async (req, res) => {
@@ -71,7 +54,7 @@ const getSinglePost = async (req, res) => {
       return res.status(404).json({ error: "Post doesn't exist or has been deleted!" });
     }
   
-    const customImgUrl = `${process.env.base_url}/post/${foundPost.image}`;
+    const customImgUrl = `http://localhost:1000/uploads/${foundPost.image}`;
     const author = foundPost.author;
     
     let contentAuthor = "Anonymous";
@@ -109,7 +92,8 @@ const getSinglePost = async (req, res) => {
       title: foundPost.title,
       summary: foundPost.summary,
       content: foundPost.content,
-      cover_img: customImgUrl,
+      slug: foundPost.slug,
+      image: customImgUrl,
       author: contentAuthor,
       views: foundPost.views, 
       reward: reward,
@@ -125,6 +109,7 @@ const getSinglePost = async (req, res) => {
 };
 
 
+
   
   // ============== Get All Posts ================
   
@@ -136,7 +121,7 @@ const getSinglePost = async (req, res) => {
         .limit(20);
   
       if (foundPosts.length === 0) {
-        return res.status(404).json({ error: "No blog posts published yet!" });
+        return res.status(404).json({ error: "No approved blog posts published yet!" });
       }
   
       res.status(200).json(foundPosts);
@@ -166,17 +151,29 @@ const getSinglePost = async (req, res) => {
           }
         })
     }
+
     const {content, title, summary} = req.body;
     const slug = req.params['slug']
+
+    const post = await Posts.findOne({slug});
+    if(!post){
+      return res.status(404).json({error:"Post not found!"})
+    }
     const postDoc = await Posts.findOneAndUpdate({slug},{
         title,
         content,
         summary,
         slug,
-        image: newImageName ? newImageName : postDoc.image
+        image: newImageName ? newImageName : post.image
     },{new:true, runValidators:true}
     
     )
+
+    if(!postDoc){
+      return res.json({error:"Unable to update post"})
+    }
+
+    return res.json({message:"Post updated successfully!"})
     
     }
   
