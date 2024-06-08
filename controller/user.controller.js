@@ -129,7 +129,6 @@ const getEarnings = async (req, res) => {
   try {
     const posts = await Post.find({ author: userId });
 
-    // Calculate total earnings
     const totalEarnings = posts.reduce((acc, post) => {
       const earningsFromPost = Math.floor(post.views / 1000) * 0.1;
       return acc + earningsFromPost;
