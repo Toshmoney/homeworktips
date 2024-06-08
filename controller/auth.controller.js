@@ -67,7 +67,7 @@ try {
 
 
 const sendVerificationEmail = async (email, token) => {
-  const verificationLink = `https://homeworktips.vercel.app/verify?token=${token}`;
+  const verificationLink = `${process.env.BASE_URL}/verify?token=${token}`;
 
   const mailOptions = {
     from: process.env.ADMIN_EMAIL,
