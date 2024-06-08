@@ -67,7 +67,7 @@ try {
 
 
 const sendVerificationEmail = async (email, token) => {
-  const verificationLink = `http://localhost:3000/verify?token=${token}`;
+  const verificationLink = `https://homeworktips.vercel.app/verify?token=${token}`;
 
   const mailOptions = {
     from: process.env.ADMIN_EMAIL,
@@ -117,7 +117,7 @@ const verifyEmail = async (req, res) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decodedToken.userId;
 
-    await User.findByIdAndUpdate(userId, { isVerified: true });
+    await User.findByIdAndUpdate(userId, { isVerified: true }, {runValidators:true, new:true});
 
     return res.json({message:"Account verification successfully!"})
   } catch (error) {

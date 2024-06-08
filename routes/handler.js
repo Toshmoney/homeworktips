@@ -1,5 +1,5 @@
 const express = require("express");
-const { register, login } = require("../controller/auth.controller");
+const { register, login, verifyEmail } = require("../controller/auth.controller");
 const {
     createPost,
     getSinglePost,
@@ -38,4 +38,5 @@ router.route("/profile").get([isLoggin], getUserProfile)
 router.route("/user/my-posts").get([isLoggin], getUserPosts)
 router.route("/user/earnings").get([isLoggin], getEarnings)
 router.route("/update-profile").put([isLoggin], updateUserProfile)
+router.route("/update-profile").put( verifyEmail)
 module.exports = router;
