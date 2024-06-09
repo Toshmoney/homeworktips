@@ -3,7 +3,8 @@ const Posts = require("../models/post.model");
 const formatDate = require("../utils/formatDate");
 const User = require('../models/user.model');
 const Wallet = require('../models/wallet.models');
-
+const path = require('path');
+const fs = require('fs');
 
 const createPost = async (req, res) => {
   const user = req.user;
@@ -15,7 +16,9 @@ const createPost = async (req, res) => {
   const imageUploadFile = req.files.image;
   const newImageName = Date.now() + imageUploadFile.name;
   const uploadPath = require('path').resolve('./') + '/uploads/' + newImageName;
-
+  if (!fs.existsSync(path.join(__dirname, '../uploads'))) {
+    fs.mkdirSync(path.join(__dirname, '../uploads'));
+  }
   try {
     await imageUploadFile.mv(uploadPath);
     const { title, summary, content } = req.body;
