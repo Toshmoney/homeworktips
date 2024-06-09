@@ -57,7 +57,7 @@ const getSinglePost = async (req, res) => {
       return res.status(404).json({ error: "Post doesn't exist or has been deleted!" });
     }
   
-    const customImgUrl = `https://homeworktips-22mg.onrender.com/uploads/${foundPost.image}`;
+    // const customImgUrl = `https://homeworktips-22mg.onrender.com/uploads/${foundPost.image}`;
     const author = foundPost.author;
     
     let contentAuthor = "Anonymous";
@@ -96,7 +96,7 @@ const getSinglePost = async (req, res) => {
       summary: foundPost.summary,
       content: foundPost.content,
       slug: foundPost.slug,
-      image: customImgUrl,
+      image: foundPost.image,
       author: contentAuthor,
       views: foundPost.views, 
       reward: reward,
