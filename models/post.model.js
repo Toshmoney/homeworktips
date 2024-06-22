@@ -1,60 +1,55 @@
 const mongoose = require("mongoose");
-const {Schema, model} = mongoose;
+const { Schema, model } = mongoose;
 
 const postSchema = new Schema({
-    title:{
-        type:String,
-        required:true
+    title: {
+        type: String,
+        required: true
     },
-    summary:{
-        type:String,
-        required:true
+    summary: {
+        type: String,
+        required: true
     },
-
     status: {
-        type:String,
-        required:true,
-        enum:["pending", "approved", "rejected"],
+        type: String,
+        required: true,
+        enum: ["pending", "approved", "rejected"],
         default: "pending"
     },
-    author:{
-        type:Schema.Types.ObjectId,
-        ref:"User",
-        required:true
+    author: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
     },
-    image :{
-        type:String,
+    image: {
+        type: String
     },
-    comments:{
-        type:Schema.Types.ObjectId,
-        ref:"Comment"
+    comments: [{
+        type: Schema.Types.ObjectId,
+        ref: "Comment"
+    }],
+    slug: {
+        type: String
     },
-    slug:{
-        type:String
-    },
-    content:{
-        type:String,
-        required:true
-    },
-    category:{
+    content: {
         type: String,
+        required: true
     },
-    views:{
-        type:Number,
-        default:0
+    category: {
+        type: String
     },
-    reward:{
-        type:Number,
-        default:0
+    views: {
+        type: Number,
+        default: 0
     },
-    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
-},
-{
-    timestamps:true
-}
+    reward: {
+        type: Number,
+        default: 0
+    }
+}, {
+    timestamps: true
+});
 
-);
+const postModel = model("Post", postSchema);
 
-const postModel = new model("Post", postSchema);
-
-module.exports = postModel
+module.exports = postModel;

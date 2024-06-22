@@ -31,6 +31,7 @@ router.route("/all-posts").get(getAllPost);
 router.route("/create-post").post([isLoggin, isVerified, isWriter], createPost);
 router.route("/post/:slug/comments").get(getComments);
 router.route("/post/:slug/comment").post([isLoggin], addComment);
+router.route('/post/:slug/comment/:commentId/reply').post([isLoggin], addReply);
 router.route("/post/:slug").patch([isLoggin, isVerified, isWriter], editSinglePost);
 router.route("/post/:slug").delete([isLoggin, isVerified, isWriter], deletePost);
 router.route("/writer/:userId").get(getWriterProfile)
