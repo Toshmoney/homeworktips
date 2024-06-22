@@ -49,7 +49,10 @@ const getWriterProfile = async(req, res)=>{
       availability:user.availability,
       skillsets:user.skillsets,
       joined: formatDate(user.createdAt),
-      profileUpdated:formatDate(user.updatedAt)
+      profileUpdated:formatDate(user.updatedAt),
+      profilePic: user.profilePicture,
+      cover: user.profileCover,
+      desc: user.profileDescription
     }
     return res.status(200).json(user);
   } catch (error) {
