@@ -181,7 +181,7 @@ const getAuthorPosts = async (req, res) => {
   try {
     const userId = req.params.id;
 
-    const posts = await Post.find({ author: userId });
+    const posts = await Post.find({ author: userId }).populate('author', 'username');
 
     const postsWithDetails = await Promise.all(
       posts.map(async (post) => {
