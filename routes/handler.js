@@ -11,7 +11,7 @@ const {
 
 const { isLoggin, isVerified, checkUserPin, verifyUserPin, isWriter } = require("../midlewares/auth");
 const { getUserProfile, getWriterProfile, updateUserProfile, getUserPosts, getEarnings } = require("../controller/user.controller");
-const { getComments, addComment } = require("../controller/comment.controller");
+const { getComments, addComment, addReply } = require("../controller/comment.controller");
 
 const router = express.Router();
 
