@@ -40,7 +40,6 @@ const userSchema = new Schema(
     profileDescription: {
       type: String
     },
-    
     accountStatus: {
       type: String,
       required: true,
@@ -51,7 +50,6 @@ const userSchema = new Schema(
       type: Boolean,
       default: true
     },
-
     walletAddress:{
         type:String
     },
@@ -63,6 +61,8 @@ const userSchema = new Schema(
     },
     resetToken: String,
     resetExpires: Date,
+    followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    following: [{ type: Schema.Types.ObjectId, ref: 'User' }]
   },
   {
     timestamps: true

@@ -61,6 +61,56 @@ const getWriterProfile = async(req, res)=>{
   }
 }
 
+const followUser = async (req, res) => {
+  const { userId } = req.params;
+  const { currentUserId } = req.body;
+
+  try {
+    let user = await User.findById(userId);
+    let currentUser = await User.findById(currentUserId);
+
+    if (!user || !currentUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (!user.followers.includes(currentUserId)) {
+      user.followers.push(currentUserId);
+      currentUser.following.push(userId);
+      await user.save();
+      await currentUser.save();
+    }
+
+    return res.status(200).json({ message: "Followed successfully" });
+  } catch (error) {
+    console.error("Error following user:", error);
+    res.status(500).json({ error: "An error occurred while following the user." });
+  }
+};
+
+const unfollowUser = async (req, res) => {
+  const { userId } = req.params;
+  const { currentUserId } = req.body;
+
+  try {
+    let user = await User.findById(userId);
+    let currentUser = await User.findById(currentUserId);
+
+    if (!user || !currentUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    user.followers = user.followers.filter(id => id.toString() !== currentUserId);
+    currentUser.following = currentUser.following.filter(id => id.toString() !== userId);
+
+    await user.save();
+    await currentUser.save();
+
+    return res.status(200).json({ message: "Unfollowed successfully" });
+  } catch (error) {
+    console.error("Error unfollowing user:", error);
+    res.status(500).json({ error: "An error occurred while unfollowing the user." });
+  }
+};
 
 
 const updateUserProfile = async (req, res) => {
@@ -151,5 +201,7 @@ module.exports = {
     getUserProfile,
     getWriterProfile,
     getUserPosts,
-    getEarnings
+    getEarnings,
+    followUser,
+    unfollowUser
 }

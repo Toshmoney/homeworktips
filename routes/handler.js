@@ -10,7 +10,7 @@ const {
 } = require("../controller/post.controller");
 
 const { isLoggin, isVerified, checkUserPin, verifyUserPin, isWriter } = require("../midlewares/auth");
-const { getUserProfile, getWriterProfile, updateUserProfile, getUserPosts, getEarnings } = require("../controller/user.controller");
+const { getUserProfile, getWriterProfile, updateUserProfile, getUserPosts, getEarnings, followUser, unfollowUser } = require("../controller/user.controller");
 const { getComments, addComment, addReply } = require("../controller/comment.controller");
 
 const router = express.Router();
@@ -38,6 +38,8 @@ router.route("/writer/:userId").get(getWriterProfile)
 router.route("/profile").get([isLoggin], getUserProfile)
 router.route("/user/my-posts").get([isLoggin], getUserPosts)
 router.route("/user/earnings").get([isLoggin], getEarnings)
+router.route('/author/:userId/follow').post([isLoggin], followUser)
+router.route('/author/:userId/unfollow').post([isLoggin], unfollowUser)
 router.route("/update-profile").put([isLoggin], updateUserProfile)
 router.route("/verify").get( verifyEmail)
 module.exports = router;
