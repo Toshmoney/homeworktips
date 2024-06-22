@@ -80,8 +80,8 @@ const followUser = async (req, res) => {
       await currentUser.save();
     }
 
-    await user.save();
-    await currentUser.save();
+    // await user.save();
+    // await currentUser.save();
     return res.status(200).json({ message: "Followed successfully", followers:user.followers });
   } catch (error) {
     console.error("Error following user:", error);
@@ -177,6 +177,29 @@ const getUserPosts = async (req, res) => {
   }
 };
 
+const getAuthorPosts = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const posts = await Post.find({ author: userId });
+
+    const postsWithDetails = await Promise.all(
+      posts.map(async (post) => {
+        const commentCount = await Comment.countDocuments({ postId: post._id });
+
+        return {
+          ...post._doc,
+          commentCount,
+        };
+      })
+    );
+
+    res.status(200).json(postsWithDetails);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch user's posts: " + err.message });
+  }
+};
+
 
 const getEarnings = async (req, res) => {
   const userId = req.user._id;
@@ -205,5 +228,6 @@ module.exports = {
     getUserPosts,
     getEarnings,
     followUser,
-    unfollowUser
+    unfollowUser,
+    getAuthorPosts,
 }
