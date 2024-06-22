@@ -80,7 +80,9 @@ const followUser = async (req, res) => {
       await currentUser.save();
     }
 
-    return res.status(200).json({ message: "Followed successfully" });
+    await user.save();
+    await currentUser.save();
+    return res.status(200).json({ message: "Followed successfully", followers:user.followers });
   } catch (error) {
     console.error("Error following user:", error);
     res.status(500).json({ error: "An error occurred while following the user." });
