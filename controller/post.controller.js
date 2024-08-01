@@ -9,18 +9,18 @@ const fs = require('fs');
 const createPost = async (req, res) => {
   const user = req.user;
 
-  if (!req.files || !req.files.image) {
-    return res.status(400).json({ error: "Post image is missing!" });
-  }
+  // if (!req.files || !req.files.image) {
+  //   return res.status(400).json({ error: "Post image is missing!" });
+  // }
 
-  const imageUploadFile = req.files.image;
-  const newImageName = Date.now() + imageUploadFile.name;
-  const uploadPath = require('path').resolve('./') + '/uploads/' + newImageName;
-  if (!fs.existsSync(path.join(__dirname, '../uploads'))) {
-    fs.mkdirSync(path.join(__dirname, '../uploads'));
-  }
+  // const imageUploadFile = req.files.image;
+  // const newImageName = Date.now() + imageUploadFile.name;
+  // const uploadPath = require('path').resolve('./') + '/uploads/' + newImageName;
+  // if (!fs.existsSync(path.join(__dirname, '../uploads'))) {
+  //   fs.mkdirSync(path.join(__dirname, '../uploads'));
+  // }
   try {
-    await imageUploadFile.mv(uploadPath);
+    // await imageUploadFile.mv(uploadPath);
     const { title, summary, content } = req.body;
     const slugify = require('slugify');
     const slug = slugify(title, { lower: true, replacement: '-' });
@@ -28,7 +28,7 @@ const createPost = async (req, res) => {
     const createdPost = await Posts.create({
       title,
       content,
-      image: newImageName,
+      // image: newImageName,
       summary,
       author: user._id,
       slug
@@ -96,7 +96,7 @@ const getSinglePost = async (req, res) => {
       summary: foundPost.summary,
       content: foundPost.content,
       slug: foundPost.slug,
-      image: foundPost.image,
+      // image: foundPost.image,
       author: contentAuthor,
       views: foundPost.views, 
       reward: reward,
@@ -138,22 +138,22 @@ const getSinglePost = async (req, res) => {
   // ============== Edit Single Post ================
   
   const editSinglePost = async(req, res)=>{
-    let newImageName = null
-    let uploadPath;
-    let imageUploadFile;
-    if(req.file){
+    // let newImageName = null
+    // let uploadPath;
+    // let imageUploadFile;
+    // if(req.file){
     
-        imageUploadFile = req.files.image;
-        newImageName = Date.now() + imageUploadFile.name;
+    //     imageUploadFile = req.files.image;
+    //     newImageName = Date.now() + imageUploadFile.name;
   
-        uploadPath = require('path').resolve('./') + '/uploads/' + newImageName;
+    //     uploadPath = require('path').resolve('./') + '/uploads/' + newImageName;
   
-        imageUploadFile.mv(uploadPath, function(err){
-          if(err){
-            res.json({error: err});
-          }
-        })
-    }
+    //     imageUploadFile.mv(uploadPath, function(err){
+    //       if(err){
+    //         res.json({error: err});
+    //       }
+    //     })
+    // }
 
     const {content, title, summary} = req.body;
     const slug = req.params['slug']
@@ -167,7 +167,7 @@ const getSinglePost = async (req, res) => {
         content,
         summary,
         slug,
-        image: newImageName ? newImageName : post.image
+        // image: newImageName ? newImageName : post.image
     },{new:true, runValidators:true}
     
     )
