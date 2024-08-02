@@ -77,7 +77,7 @@ const getSinglePost = async (req, res) => {
     let reward = null;
 
     if (isAuthor) {
-      reward = Math.floor(foundPost.views / 1000) * 0.1;
+      reward = Math.floor(foundPost.views / 100) * 2;
 
       if (reward > 0) {
         const wallet = await Wallet.findOne({ user: author });
