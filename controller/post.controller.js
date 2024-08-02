@@ -133,6 +133,26 @@ const getSinglePost = async (req, res) => {
       res.status(500).json({ error: "An error occurred while retrieving the posts." });
     }
   };
+
+
+  // ============== Get All User Posts ================
+  
+  const getAllUserPost = async (req, res) => {
+    try {
+      const foundPosts = await Posts.find()
+        .populate('author', ['username'])
+        .sort({ createdAt: -1 });
+  
+      if (foundPosts.length === 0) {
+        return res.status(404).json({ error: "No post published yet!" });
+      }
+  
+      res.status(200).json(foundPosts);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "An error occurred while retrieving the posts." });
+    }
+  };
   
   
   // ============== Edit Single Post ================
@@ -276,5 +296,6 @@ const getSinglePost = async (req, res) => {
         deleteAllPost,
         deletePost,
         approvePost,
-        rejectPost
+        rejectPost,
+        getAllUserPost
     }

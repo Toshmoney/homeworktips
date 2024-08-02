@@ -91,6 +91,9 @@ const allUsers = async(req, res){
         email: wallet.user?.email,
         createdAt: formatDate(wallet.user?.createdAt),
         balance: wallet?.balance,
+        userType: wallet?.user?.userType,
+        accountStatus: wallet?.user?.accountStatus,
+        
       };
     });
     
@@ -104,9 +107,9 @@ const allUsers = async(req, res){
 
 const makeUserAModerator = async (req, res) => {
   try {
-    let { email } = req.body;
-    email = email.toLowerCase(); 
-    const user = await User.findOne({ email });
+    const {userId} = req.params
+ 
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -219,5 +222,6 @@ module.exports ={
     makeUserAModerator,
     revertUserToNormal,
     adminDeleteSinglePost,
-    adminDeleteAllPosts
+    adminDeleteAllPosts,
+    approveWithdrawal
 }

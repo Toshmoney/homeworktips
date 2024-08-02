@@ -59,7 +59,7 @@ const isAdmin = (req, res, next) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    if (req.user.userType !== 'moderator') {
+    if (req.user.userType !== 'moderator' || req.user.userType !== 'admin') {
       return res.status(403).json({ error: "You are not a moderator" });
     }
 
@@ -73,6 +73,18 @@ const isAdmin = (req, res, next) => {
   
     if (!req.user.isVerified) {
       return res.status(403).json({ error: "Your account is not verified" });
+    }
+  
+    next();
+  };
+
+  const isSuspended = (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+  
+    if (req.user.accountStatus === "suspended") {
+      return res.status(403).json({ error: "Your account has been suspended, kindly contact admin!" });
     }
   
     next();
@@ -140,4 +152,5 @@ module.exports = {
     verifyUserPin,
     isModerator,
     isWriter,
+    isSuspended
 };

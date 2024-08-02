@@ -52,7 +52,8 @@ const getWriterProfile = async(req, res)=>{
       profileUpdated:formatDate(user.updatedAt),
       profilePic: user.profilePicture,
       cover: user.profileCover,
-      desc: user.profileDescription
+      desc: user.profileDescription,
+      userType: user.userType,
     }
     return res.status(200).json(user);
   } catch (error) {

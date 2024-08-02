@@ -6,7 +6,8 @@ const {
     getAllPost,
     editSinglePost,
     deleteAllPost,
-    deletePost
+    deletePost,
+    getAllUserPost
 } = require("../controller/post.controller");
 
 const { isLoggin, isAdmin } = require("../midlewares/auth");
@@ -18,7 +19,7 @@ router.route("/login").post([isAdmin],login);
 
 // Tasks and offer management
 router.route("/approve-post/:slug").post([isAdmin],getSinglePost);
-router.route("/all-posts").get(getAllPost);
+router.route("/all-posts").get(getAllUserPost);
 router.route("/create-post").post([isLoggin, isAdmin], createPost);
 router.route("/post/:slug").patch([isLoggin, isAdmin], editSinglePost);
 router.route("/post/:slug").delete([isLoggin, isAdmin], deletePost);
