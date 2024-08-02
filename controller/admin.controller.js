@@ -79,7 +79,7 @@ const removeSuspension = async(req, res)=>{
     }
 }
 
-const allUsers = async(req, res){
+const allUsers = async(req, res)=>{
   try{
 
     let wallets = await Wallet.find().populate("user");
