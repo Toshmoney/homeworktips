@@ -18,7 +18,7 @@ const router = express.Router();
 router.route("/login").post([isModerator],login);
 
 // post management for moderators
-router.route("/approve-post/:slug").post([isModerator],approvePost);
+router.route("/approve-post/:slug").post([isLoggin, isModerator],approvePost);
 router.route("/all-posts").get(getAllUserPost);
 router.route("/create-post").post([isLoggin, isModerator], createPost);
 router.route("/reject-post/:slug").post([isLoggin, isModerator], rejectPost);

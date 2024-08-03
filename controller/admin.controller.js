@@ -191,9 +191,9 @@ const revertUserToNormal = async(req, res)=>{
 }
 
 const adminDeleteSinglePost = async(req, res)=>{
-  const postId = req.params.postId;
+  const {slug} = req.params.postId;
   try {
-    const deletedPost = await Posts.findByIdAndDelete(postId);
+    const deletedPost = await Posts.findOneAndDelete({slug});
     if (!deletedPost) {
       return res.status(404).json({ error: "Post not found" });
     }
