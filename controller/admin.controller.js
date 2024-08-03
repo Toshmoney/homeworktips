@@ -160,7 +160,7 @@ const adminDeleteSinglePost = async(req, res)=>{
 
 const adminDeleteAllPosts = async(req, res)=>{
   try {
-    const deletedPosts = await Posts.deleteMany({});
+    const deletedPosts = await Posts.deleteMany();
     if(!deletedPosts){
       return res.status(404).json({ error: "Posts not found" });
     }
