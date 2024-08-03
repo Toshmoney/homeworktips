@@ -26,6 +26,7 @@ router.route("/post/:slug").delete([isLoggin, isModerator], adminDeleteSinglePos
 router.route("/delete-post").delete([isLoggin, isModerator], adminDeleteAllPosts);
 router.route("/all-users").get([isLoggin, isModerator], allUsers);
 router.route("/user-to-mod/:userId").post([isLoggin, isModerator], makeUserAModerator);
+router.route("/user-to-normal/:userId").post([isLoggin, isModerator], revertUserToNormal);
 router.route("/lift-suspension/:userId").post([isLoggin, isModerator], removeSuspension);
 router.route("/suspend-user/:userId").post([isLoggin, isModerator], suspendUser);
 
