@@ -4,6 +4,29 @@ const withdrawal = require("../models/withdrawal.model");
 const Wallet = require("../models/wallet.models")
 const Transaction = require("../models/transaction.model");
 const formatDate = require("../utils/formatDate");
+const nodemailer = require("nodemailer")
+
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.ADMIN_EMAIL,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
+
+// Send email function
+const sendEmail = (to, subject, text) => {
+  const mailOptions = {
+    from: process.env.ADMIN_EMAIL, 
+    to: to,
+    subject: subject,
+    text: text
+  };
+
+  return transporter.sendMail(mailOptions);
+};
+
 const banUser = async(req, res)=>{
     try {
         const {userId} = req.params; 
@@ -46,6 +69,12 @@ const suspendUser = async(req, res)=>{
       user.accountStatus = "suspended";
   
       await user.save();
+
+      await sendEmail(
+        user.email,
+        'Account Suspended',
+        `Hello ${user.username},\n\nYour account has been suspended. If you believe this is a mistake, please contact support.\n\nBest regards,\nHomeworktips Team`
+      );
   
       res.status(200).json({ message: "Account suspended successfully", user: user });
     } catch (error) {
@@ -71,7 +100,11 @@ const removeSuspension = async (req, res) => {
   
     user.accountStatus = "active";
     await user.save();
-  
+    await sendEmail(
+      user.email,
+      'Account Suspension Lifted',
+      `Hello ${user.username},\n\nYour account has been successfully reactivated. If you have any questions, please contact support.\n\nBest regards,\nHomeworktips Team`
+    );
     res.status(200).json({ message: "Suspension lifted successfully!", user: user });
   } catch (error) {
     console.error("Error lifting suspension:", error);
@@ -119,6 +152,12 @@ const makeUserAModerator = async (req, res) => {
     user.userType = "moderator";
     await user.save();
 
+    await sendEmail(
+      user.email,
+      'Account Upgraded to Moderator!',
+      `Hello ${user.username},\n\nYou have been given moderator role on homeworktips.info website. Please login to start acting like boss.\n\nBest regards,\nHomeworktips Team`
+    );
+
     return res.status(200).json({ message: "User is now a moderator" });
   } catch (error) {
     console.error(error);
@@ -137,6 +176,12 @@ const revertUserToNormal = async(req, res)=>{
 
     user.userType = "writer";
     await user.save();
+
+    await sendEmail(
+      user.email,
+      'Account Downgraded to Normal User',
+      `Hello ${user.username},\n\nWe're sorry to inform you that your account is no more on moderator role, you are back to normal user. If you have any questions, please contact support.\n\nBest regards,\nHomeworktips Team`
+    );
 
     return res.status(200).json({ message: "User is now a normal writer" });
   } catch (error) {
