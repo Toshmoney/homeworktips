@@ -191,7 +191,7 @@ const revertUserToNormal = async(req, res)=>{
 }
 
 const adminDeleteSinglePost = async(req, res)=>{
-  const {slug} = req.params.postId;
+  const {slug} = req.params;
   try {
     const deletedPost = await Posts.findOneAndDelete({slug});
     if (!deletedPost) {
@@ -200,7 +200,7 @@ const adminDeleteSinglePost = async(req, res)=>{
     return res.status(200).json({ message: "Post deleted successfully" });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "An error occurred" });
+    return res.status(500).json({ error: error.message });
   }
 }
 
