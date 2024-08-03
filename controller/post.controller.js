@@ -45,61 +45,61 @@ const createPost = async (req, res) => {
   }
 };
 
-
 const getSinglePost = async (req, res) => {
   const slug = req.params['slug'];
-  
+
   try {
-    let foundPost = await Posts.findOne({ slug });
-    
+    let foundPost = await Posts.findOne({ slug }).populate('author', 'username');
+
     if (!foundPost) {
       return res.status(404).json({ error: "Post doesn't exist or has been deleted!" });
     }
 
     const author = foundPost.author;
+    const contentAuthor = author ? author.username : "Anonymous";
 
-    const user = await User.findById(author);
-    const contentAuthor = user ? user.username : "Anonymous";
+    const isAuthor = req.user && req.user._id.toString() === author._id.toString();
 
-    const isAuthor = req.user && req.user._id.toString() === author.toString();
-
+    // Only increment views and calculate reward if the user is not the author
     if (!isAuthor) {
       foundPost.views += 1;
       await foundPost.save();
 
-      const reward = 0.02;
-      const wallet = await Wallet.findOne({ user: author });
+      if (foundPost.views % 500 === 0) {
+        const reward = 0.02;
+        const wallet = await Wallet.findOne({ user: author._id });
 
-      if (wallet) {
-        wallet.balance += reward;
-        await wallet.save();
-      } else {
-        const newWallet = new Wallet({ user: author, balance: reward });
-        await newWallet.save();
+        if (wallet) {
+          wallet.balance += reward;
+          await wallet.save();
+        } else {
+          const newWallet = new Wallet({ user: author._id, balance: reward });
+          await newWallet.save();
+        }
       }
     }
 
-    foundPost = {
+    const totalReward = (Math.floor(foundPost.views / 500)) * 0.02;
+
+    const formattedPost = {
       title: foundPost.title,
       summary: foundPost.summary,
       content: foundPost.content,
       slug: foundPost.slug,
       author: contentAuthor,
       views: foundPost.views,
-      reward: foundPost.views * 0.02,
+      reward: totalReward,
       createdAt: formatDate(foundPost.createdAt),
       updatedAt: formatDate(foundPost.updatedAt),
     };
 
-    return res.status(200).json(foundPost);
+    return res.status(200).json(formattedPost);
   } catch (error) {
     console.error('Error retrieving post:', error);
     return res.status(500).json({ error: "An error occurred while retrieving the post." });
   }
 };
 
-
-  
   // ============== Get All Posts ================
   
   const getAllPost = async (req, res) => {
