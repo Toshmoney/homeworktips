@@ -46,7 +46,6 @@ const createPost = async (req, res) => {
 };
 
 
-  
 const getSinglePost = async (req, res) => {
   const slug = req.params['slug'];
   
@@ -56,38 +55,27 @@ const getSinglePost = async (req, res) => {
     if (!foundPost) {
       return res.status(404).json({ error: "Post doesn't exist or has been deleted!" });
     }
-  
-    // const customImgUrl = `https://homeworktips-22mg.onrender.com/uploads/${foundPost.image}`;
+
     const author = foundPost.author;
-    
-    let contentAuthor = "Anonymous";
+
     const user = await User.findById(author);
-    
-    if (user) {
-      contentAuthor = user.username;
-    }
+    const contentAuthor = user ? user.username : "Anonymous";
 
     const isAuthor = req.user && req.user._id.toString() === author.toString();
 
     if (!isAuthor) {
       foundPost.views += 1;
       await foundPost.save();
-    }
 
-    let reward = null;
+      const reward = 0.02;
+      const wallet = await Wallet.findOne({ user: author });
 
-    if (isAuthor) {
-     reward = Math.floor(foundPost.views / 100) * 2;
-
-      if (reward > 0) {
-        const wallet = await Wallet.findOne({ user: author });
-        if (wallet) {
-          wallet.balance += reward;
-          await wallet.save();
-        } else {
-          const newWallet = new Wallet({ user: author, balance: reward });
-          await newWallet.save();
-        }
+      if (wallet) {
+        wallet.balance += reward;
+        await wallet.save();
+      } else {
+        const newWallet = new Wallet({ user: author, balance: reward });
+        await newWallet.save();
       }
     }
 
@@ -96,21 +84,19 @@ const getSinglePost = async (req, res) => {
       summary: foundPost.summary,
       content: foundPost.content,
       slug: foundPost.slug,
-      // image: foundPost.image,
       author: contentAuthor,
-      views: foundPost.views, 
-      reward: reward,
+      views: foundPost.views,
+      reward: foundPost.views * 0.02,
       createdAt: formatDate(foundPost.createdAt),
       updatedAt: formatDate(foundPost.updatedAt),
     };
-  
+
     return res.status(200).json(foundPost);
   } catch (error) {
-    console.error(error);
+    console.error('Error retrieving post:', error);
     return res.status(500).json({ error: "An error occurred while retrieving the post." });
   }
 };
-
 
 
   
