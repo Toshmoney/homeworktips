@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require('cors');
 const { login } = require("../controller/auth.controller");
 const {
     createPost,
@@ -13,6 +14,8 @@ const { isLoggin, isModerator } = require("../midlewares/auth");
 const { allUsers, makeUserAModerator, revertUserToNormal, suspendUser, removeSuspension, adminDeleteAllPosts, adminDeleteSinglePost } = require("../controller/admin.controller");
 
 const router = express.Router();
+
+router.use(cors({origin:"*"}))
 
 // Moderator login route
 router.route("/login").post([isModerator],login);
