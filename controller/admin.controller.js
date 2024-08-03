@@ -54,30 +54,31 @@ const suspendUser = async(req, res)=>{
     }
 }
 
-const removeSuspension = async(req, res)=>{
+const removeSuspension = async (req, res) => {
   try {
-    const {userId} = req.params; 
+    const { userId } = req.params; 
 
-      const user = await User.findById(userId);
+    const user = await User.findById(userId);
   
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-  
-      if(user.accountStatus != "suspended" || user.accountStatus != "banned"){
-          return res.json({error:"This user is not on suspension therefore the request could not be made!"})
-      }
-  
-      user.accountStatus = "active";
-  
-      await user.save();
-  
-      res.status(200).json({ message: "Suspension lifted successfully!", user: user });
-    } catch (error) {
-      console.error("Error toggling availability:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
-}
+  
+    // Check if user is either suspended or banned
+    if (user.accountStatus !== "suspended" && user.accountStatus !== "banned") {
+      return res.status(400).json({ error: "This user is not suspended or banned; request could not be processed." });
+    }
+  
+    user.accountStatus = "active";
+    await user.save();
+  
+    res.status(200).json({ message: "Suspension lifted successfully!", user: user });
+  } catch (error) {
+    console.error("Error lifting suspension:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 
 const allUsers = async(req, res)=>{
   try{
