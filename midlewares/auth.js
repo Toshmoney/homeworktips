@@ -54,17 +54,17 @@ const isAdmin = (req, res, next) => {
     next();
   };
 
-  const isModerator = (req, res, next)=>{
-    if(!req.user){
+  const isModerator = (req, res, next) => {
+    if (!req.user) {
       return res.status(401).json({ error: "Unauthorized" });
     }
-
-    if (req.user.userType !== 'moderator' || req.user.userType !== 'admin') {
-      return res.status(403).json({ error: "You are not a moderator" });
+  
+    if (req.user.userType !== 'moderator' && req.user.userType !== 'admin') {
+      return res.status(403).json({ error: "You are not a moderator or admin" });
     }
-
-    next()
-  }
+  
+    next();
+  }  
   
   const isVerified = (req, res, next) => {
     if (!req.user) {

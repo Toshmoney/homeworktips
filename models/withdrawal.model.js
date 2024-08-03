@@ -20,4 +20,4 @@ const withdrawalRequestSchema = new Schema({
 
 const WithdrawalRequest = model("Withdrawal", withdrawalRequestSchema);
 
-module.exports = Withdrawal;
+module.exports = WithdrawalRequest;

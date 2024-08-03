@@ -79,7 +79,7 @@ const removeSuspension = async(req, res)=>{
     }
 }
 
-const allUsers = async(req, res){
+const allUsers = async(req, res)=>{
   try{
 
     let wallets = await Wallet.find().populate("user");
@@ -160,7 +160,7 @@ const adminDeleteSinglePost = async(req, res)=>{
 
 const adminDeleteAllPosts = async(req, res)=>{
   try {
-    const deletedPosts = await Posts.deleteMany({});
+    const deletedPosts = await Posts.deleteMany();
     if(!deletedPosts){
       return res.status(404).json({ error: "Posts not found" });
     }
